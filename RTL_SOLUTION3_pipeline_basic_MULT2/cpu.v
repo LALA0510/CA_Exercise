@@ -439,7 +439,7 @@ reg_arstn_en #(// reg2_EX_MEM
    .clk        (clk           ),
    .arst_n     (arst_n        ),
    .en         (enable        ),
-   .din        (reg2_EX_MEM    ),
+   .din        (mem_data      ),
    .dout       (mem_data_MEM_WB   )
 );
 // alu_out_EX_MEM
