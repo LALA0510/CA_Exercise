@@ -48,7 +48,7 @@ wire              reg_dst,branch,mem_read,mem_2_reg,
 wire [       4:0] regfile_waddr;
 wire [      63:0] regfile_wdata,mem_data,alu_out,
                   regfile_rdata_1,regfile_rdata_2,
-                  alu_operand_2;
+                  alu_operand_2, wire_jal;
 
 wire signed [63:0] immediate_extended;
 
@@ -284,16 +284,16 @@ alu_control alu_ctrl(
 mux_2 #(
    .DATA_W(64)
 ) alu_operand_mux (
-   .input_a (immExt_ID_EX      ),
-   .input_b (reg2_ID_EX        ),
-   .select_a(cntrWB_ID_EX[0:0] ),// alu_src
-   .mux_out (alu_operand_2     )
+   .input_a (immediate_extended_ID_EX        ),// immExt_ID_EX
+   .input_b (reg2_ID_EX                      ),
+   .select_a(cntrWB_ID_EX[0:0]               ),// alu_src
+   .mux_out (alu_operand_2                   )
 );
 
 alu#(
    .DATA_W(64)
 ) alu(
-   .alu_in_0 (regfile_rdata_1 ),
+   .alu_in_0 (reg1_ID_EX      ),// regfile_rdata_1
    .alu_in_1 (alu_operand_2   ),
    .alu_ctrl (alu_control     ),
    .alu_out  (alu_out         ),
@@ -324,6 +324,15 @@ mux_2 #(
    .input_a  (mem_data     ),
    .input_b  (alu_out      ),
    .select_a (mem_2_reg    ),
+   .mux_out  (wire_jal)
+);
+
+mux_2 #(
+   .DATA_W(64)
+) regfile_data_mux_1 (
+   .input_a  (updated_pc     ),
+   .input_b  (wire_jal      ),
+   .select_a (mem_2_reg && jump   ),
    .mux_out  (regfile_wdata)
 );
 
